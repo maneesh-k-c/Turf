@@ -4,6 +4,7 @@ const app = express();
 const mongoose = require('mongoose');
 const registerRouter = require('./src/routes/registerRouter');
 const loginRouter = require('./src/routes/loginRouter');
+const newsRouter = require('./src/routes/newsRouter');
 
 require('dotenv').config();
 
@@ -18,6 +19,7 @@ app.get('/',(req,res)=>{
 
 app.use('/api/register',registerRouter)
 app.use('/api/login',loginRouter)
+app.use('/api/news',newsRouter)
 
 
 mongoose.connect(process.env.MONGO_URI).then(() => {

@@ -1,11 +1,11 @@
 const express = require('express');
 const registerRouter = express.Router();
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const multer = require('multer');
 const turfData = require('../models/turfSchema');
 const loginData = require('../models/loginSchema');
 const playerData = require('../models/playerSchema');
 const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
 require('dotenv').config();
 
 cloudinary.config({
