@@ -245,6 +245,66 @@ registerRouter.get('/view-single-turf/:login_id', async (req, res) => {
   }
 })
 
+registerRouter.put('/turf/:turfId', uploadImage.array('imageUrl', 1), async (req, res) => {
+  try {
+    const { turfId } = req.params;
+    const turf = await turfData.findById(turfId);
+    if (!turf) {
+      return res.status(404).json({
+        success: false,
+        error: true,
+        message: 'Turf not found.',
+      });
+    }
+    const updatedFields = {
+      turfName: req.body.turfName || turf.turfName,
+      location: req.body.location || turf.location,
+      contact: req.body.contact || turf.contact,
+      address: req.body.address || turf.address,
+      fair: req.body.fair || turf.fair,
+      imageUrl: req.files ? req.files.map((file) => file.path) : turf.imageUrl,
+    };
+
+    if (req.body.turfName && req.body.turfName !== turf.turfName) {
+      const existingTurf = await turfData.findOne({ turfName: req.body.turfName });
+      if (existingTurf) {
+        return res.status(400).json({
+          success: false,
+          error: true,
+          message: 'Turf with that name already exists.',
+        });
+      }
+    }
+
+    if (req.body.contact && req.body.contact !== turf.contact) {
+      const existingNumber = await turfData.findOne({ contact: req.body.contact });
+      if (existingNumber) {
+        return res.status(400).json({
+          success: false,
+          error: true,
+          message: 'Contact number already exists.',
+        });
+      }
+    }
+
+    const updatedTurf = await turfData.findByIdAndUpdate(turfId, updatedFields, { new: true });
+
+    return res.status(200).json({
+      success: true,
+      error: false,
+      data: updatedTurf,
+      message: 'Turf details updated successfully',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: true,
+      message: 'Internal server error',
+    });
+  }
+});
+
+
 // =====================player registration==================================
 registerRouter.post('/player', uploadImage.array('imageUrl', 1), async (req, res) => {
   try {
@@ -342,6 +402,31 @@ registerRouter.get('/delete-player/:login_id', async (req, res) => {
 registerRouter.get('/view-single-player/:login_id', async (req, res) => {
   try {
     const turf = await playerData.findOne({loginId:req.params.login_id})
+    if (turf) {
+      return res.status(200).json({
+        success: true,
+        error: false,
+        data: turf,
+      })
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: true,
+        message: 'No data found',
+      })
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: true,
+      message: 'Internal server error',
+    })
+  }
+})
+
+registerRouter.get('/view-all-players', async (req, res) => {
+  try {
+    const turf = await playerData.find()
     if (turf) {
       return res.status(200).json({
         success: true,

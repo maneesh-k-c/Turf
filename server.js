@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const registerRouter = require('./src/routes/registerRouter');
 const loginRouter = require('./src/routes/loginRouter');
 const newsRouter = require('./src/routes/newsRouter');
+const teamRouter = require('./src/routes/teamRouter');
+const tournamentRouter = require('./src/routes/tournamentRouter');
 
 require('dotenv').config();
 
@@ -20,6 +22,8 @@ app.get('/',(req,res)=>{
 app.use('/api/register',registerRouter)
 app.use('/api/login',loginRouter)
 app.use('/api/news',newsRouter)
+app.use('/api/team',teamRouter)
+app.use('/api/tournament',tournamentRouter)
 
 
 mongoose.connect(process.env.MONGO_URI).then(() => {

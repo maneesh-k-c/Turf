@@ -1,5 +1,6 @@
 const express = require('express');
 const loginData = require('../models/loginSchema');
+const playerData = require('../models/playerSchema');
 const loginRouter = express.Router();
 
 require('dotenv').config();
@@ -45,10 +46,12 @@ if (req.body.email && req.body.password) {
                     Message: 'Password Incorrect',
                 });
             }
+            const playerDetails = await playerData.findOne({loginId:oldUser._id})
 
             return res.status(200).json({
                 success: true,
                 error: false,
+                playerId:playerDetails._id,
                 loginId: oldUser._id,
                 email: oldUser.email,
                 role: oldUser.role,
