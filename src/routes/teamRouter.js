@@ -56,7 +56,7 @@ teamRouter.get('/all-team', async (req, res) => {
         const teams = await teamSchema.find()
             .populate('members', 'playerName mobile position availability')
             .populate('pendingRequests', 'playerName mobile position availability')
-            .populate('captainLoginId', 'name email ')
+            .populate('captainId', 'name email ')
             .sort({ createdDate: -1 });
 
         if (teams.length === 0) {
