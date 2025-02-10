@@ -5,7 +5,7 @@ const tournamentData = require('../models/tournamentSchema');
 const tournamentRouter = express.Router();
 
 
-tournamentRouter.post('/create-tournament', async (req, res) => {
+tournamentRouter.post('/create', async (req, res) => {
     try {
         const { name, description, startDate, endDate, prize, turfId } = req.body;
 
@@ -153,6 +153,91 @@ tournamentRouter.get('/delete-tournament/:id', async (req, res) => {
         });
     } catch (error) {
         console.error('Error retrieving teams:', error);
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: 'Internal server error',
+        });
+    }
+});
+
+
+
+tournamentRouter.get('/tournaments-by-turf/:turfId', async (req, res) => {
+    try {
+        const { turfId } = req.params;
+
+        // Find all tournaments that match the given turfId
+        const tournaments = await tournamentData.find({ turfId })
+            .populate({
+                path: 'teams',
+                select: 'teamName members captainId',
+                populate: {
+                    path: 'members captainId',
+                    select: 'playerName position',
+                    model: 'player_tb',
+                },
+            })
+            .populate('turfId', 'turfName location contact address')
+            .sort({ createdAt: -1 });
+
+        if (tournaments.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: true,
+                message: 'No tournaments found for this Turf',
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            error: false,
+            data: tournaments,
+            message: 'Tournaments retrieved successfully',
+        });
+    } catch (error) {
+        console.error('Error retrieving tournaments:', error);
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: 'Internal server error',
+        });
+    }
+});
+
+tournamentRouter.get('/tournament/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const tournament = await tournamentData
+            .findById(id)
+            .populate({
+                path: 'teams',
+                select: 'teamName members captainId',
+                populate: {
+                    path: 'members captainId',
+                    select: 'playerName position',
+                    model: 'player_tb',
+                },
+            })
+            .populate('turfId', 'turfName location contact address');
+
+        if (!tournament) {
+            return res.status(404).json({
+                success: false,
+                error: true,
+                message: 'Tournament not found',
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            error: false,
+            data: tournament,
+            message: 'Tournament retrieved successfully',
+        });
+    } catch (error) {
+        console.error('Error retrieving tournament:', error);
         return res.status(500).json({
             success: false,
             error: true,

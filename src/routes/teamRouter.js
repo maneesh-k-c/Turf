@@ -250,6 +250,53 @@ teamRouter.post('/manage-request', async (req, res) => {
       });
     }
 });
+
+teamRouter.get('/captain-requests/:captainId', async (req, res) => {
+    try {
+        const { captainId } = req.params;
+
+        if (!captainId) {
+            return res.status(400).json({
+                success: false,
+                error: true,
+                message: 'Captain ID is required',
+            });
+        }
+
+        // Find teams where the current user is the captain
+        const teams = await teamSchema.find({ captainId })
+            .populate('pendingRequests', 'playerName mobile position availability')
+            .sort({ createdDate: -1 });
+
+        if (!teams || teams.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: true,
+                message: 'No teams found or you are not a captain of any team',
+            });
+        }
+
+        // Extract pending requests from all the teams
+        const requests = teams.reduce((acc, team) => {
+            return [...acc, ...team.pendingRequests];
+        }, []);
+
+        return res.status(200).json({
+            success: true,
+            error: false,
+            data: requests,
+            message: 'List of pending join requests retrieved successfully',
+        });
+    } catch (error) {
+        console.error('Error retrieving captain requests:', error);
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: 'Internal server error',
+        });
+    }
+});
+
   
 
 

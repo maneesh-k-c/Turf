@@ -61,8 +61,11 @@ registerRouter.post('/turf', uploadImage.array('documentUrl', 1), async (req, re
         location: req.body.location,
         contact: req.body.contact,
         address: req.body.address,
+        latitude: req.body.latitude,  
+        longitude: req.body.longitude, 
         fair: req.body.fair,
         documentUrl: req.files ? req.files.map((file) => file.path) : null,
+        about: req.body.about || '',
       };
       const Data = await turfData(turf).save();
 
@@ -195,6 +198,8 @@ registerRouter.get('/view-turfs', async (req, res) => {
           'fair': { '$first': '$fair' },
           'imageUrl': { '$first': '$imageUrl' },
           'documentUrl': { '$first': '$documentUrl' },
+          'latitude': { '$first': '$latitude' },
+          'longitude': { '$first': '$longitude' },
         }
       }
     ])
