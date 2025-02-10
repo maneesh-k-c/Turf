@@ -251,51 +251,46 @@ teamRouter.post('/manage-request', async (req, res) => {
     }
 });
 
+
+
 teamRouter.get('/captain-requests/:captainId', async (req, res) => {
     try {
         const { captainId } = req.params;
 
-        if (!captainId) {
-            return res.status(400).json({
-                success: false,
-                error: true,
-                message: 'Captain ID is required',
-            });
-        }
-
-        // Find teams where the current user is the captain
         const teams = await teamSchema.find({ captainId })
-            .populate('pendingRequests', 'playerName mobile position availability')
-            .sort({ createdDate: -1 });
+            .populate('pendingRequests', 'name email') 
+            .exec();
 
-        if (!teams || teams.length === 0) {
+        if (!teams.length) {
             return res.status(404).json({
                 success: false,
                 error: true,
-                message: 'No teams found or you are not a captain of any team',
+                message: 'No teams found for this captain',
             });
         }
 
-        // Extract pending requests from all the teams
-        const requests = teams.reduce((acc, team) => {
-            return [...acc, ...team.pendingRequests];
-        }, []);
+   
+        const pendingRequests = teams.map(team => ({
+            teamName: team.teamName,
+            pendingRequests: team.pendingRequests,
+        }));
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             error: false,
-            data: requests,
-            message: 'List of pending join requests retrieved successfully',
+            pendingRequests,
         });
+
     } catch (error) {
-        console.error('Error retrieving captain requests:', error);
-        return res.status(500).json({
+        console.error('Error fetching pending requests:', error);
+        res.status(500).json({
             success: false,
             error: true,
             message: 'Internal server error',
         });
     }
 });
+
 
   
 
