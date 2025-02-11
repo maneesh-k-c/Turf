@@ -258,7 +258,7 @@ teamRouter.get('/captain-requests/:captainId', async (req, res) => {
         const { captainId } = req.params;
 
         const teams = await teamSchema.find({ captainId })
-            .populate('pendingRequests', 'name email') 
+            .populate('pendingRequests', 'playerName mobile') 
             .exec();
 
         if (!teams.length) {
