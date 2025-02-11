@@ -253,43 +253,76 @@ teamRouter.post('/manage-request', async (req, res) => {
 
 
 
+// teamRouter.get('/captain-requests/:captainId', async (req, res) => {
+//     try {
+//         const { captainId } = req.params;
+
+//         const teams = await teamSchema.find({ captainId })
+//             .populate('pendingRequests', 'playerName mobile') 
+//             .exec();
+
+//         if (!teams.length) {
+//             return res.status(404).json({
+//                 success: false,
+//                 error: true,
+//                 message: 'No teams found for this captain',
+//             });
+//         }
+
+   
+//         const pendingRequests = teams.map(team => ({
+//             teamName: team.teamName,
+//             pendingRequests: team.pendingRequests,
+//         }));
+
+//         res.status(200).json({
+//             success: true,
+//             error: false,
+//             pendingRequests,
+//         });
+
+//     } catch (error) {
+//         console.error('Error fetching pending requests:', error);
+//         res.status(500).json({
+//             success: false,
+//             error: true,
+//             message: 'Internal server error',
+//         });
+//     }
+// });
+
 teamRouter.get('/captain-requests/:captainId', async (req, res) => {
     try {
-        const { captainId } = req.params;
+        const teams = await teamSchema.find({captainId:req.params.captainId})
+            .populate('members', 'playerName mobile position availability')
+            .populate('pendingRequests', 'playerName mobile position availability')
+            .populate('captainId', 'name email ')
+            .sort({ createdDate: -1 });
 
-        const teams = await teamSchema.find({ captainId })
-            .populate('pendingRequests', 'playerName mobile') 
-            .exec();
-
-        if (!teams.length) {
+        if (teams.length === 0) {
             return res.status(404).json({
                 success: false,
                 error: true,
-                message: 'No teams found for this captain',
+                message: 'No teams found',
             });
         }
 
-   
-        const pendingRequests = teams.map(team => ({
-            teamName: team.teamName,
-            pendingRequests: team.pendingRequests,
-        }));
-
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             error: false,
-            pendingRequests,
+            data: teams,
+            message: 'Teams retrieved successfully',
         });
-
     } catch (error) {
-        console.error('Error fetching pending requests:', error);
-        res.status(500).json({
+        console.error('Error retrieving teams:', error);
+        return res.status(500).json({
             success: false,
             error: true,
             message: 'Internal server error',
         });
     }
 });
+
 
 
   

@@ -8,7 +8,7 @@ const teamSchema = new mongoose.Schema({
       ref: 'player_tb', 
       required: true,
     }
-  ],
+  ],  
   pendingRequests: [
     {
       type: mongoose.Schema.Types.ObjectId,
