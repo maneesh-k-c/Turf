@@ -26,7 +26,7 @@ reviewRouter.post('/add', async (req, res) => {
     }
 });
 
-// Get all reviews for a turf
+// Get reviews for a turf
 reviewRouter.get('/turf/:turfId', async (req, res) => {
     try {
         const { turfId } = req.params;
